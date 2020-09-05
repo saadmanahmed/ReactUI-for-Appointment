@@ -18,11 +18,13 @@ class App extends Component {
       formDisplay:false,
       orderBy:'ownerName',
       orderDir:'asc',
+      queryText:'',
 
     }
     this.deleteAppointment=this.deleteAppointment.bind(this);
     this.toggleForm=this.toggleForm.bind(this);
     this.addAppointment=this.addAppointment.bind(this);
+    this.searchApts=this.searchApts.bind(this);
   }
 
   toggleForm(){
@@ -49,6 +51,15 @@ addAppointment(apt){
     myAppointments:tempApt,
     lastIndex:this.state.lastIndex+1
   })
+}
+
+searchApts(query){
+  this.setState(
+    {
+      queryText:query
+    }
+  )
+ 
 }
   componentDidMount(){
     fetch('./data.json').then(response=>response.json()).then(result=>{const apts=result.map(e=>{
@@ -79,7 +90,7 @@ addAppointment(apt){
     }
     else{order=-1};
 
-    filteredApts.sort((a,b)=>{
+    filteredApts=filteredApts.sort((a,b)=>{
     if(a[this.state.orderBy].toLowerCase()<b[this.state.orderBy].toLowerCase()){
       return -1;
     }
@@ -89,7 +100,12 @@ addAppointment(apt){
   }
     
     
-    )
+    ).filter(eachItem=>{
+      return(
+        eachItem['petName'].toLowerCase().includes(this.state.queryText.toLowerCase())||
+        eachItem['ownerName'].toLowerCase().includes(this.state.queryText.toLowerCase())
+      )
+    })
 
     
     return (
@@ -101,7 +117,7 @@ addAppointment(apt){
                  
                  <AddAppointments addAppointment={this.addAppointment} formDisplay={this.state.formDisplay} toggleForm={this.toggleForm}/>
                  <ListAppointments appointments={filteredApts} deleteAppointment={this.deleteAppointment}/>
-                 <SearchAppointments/>
+                 <SearchAppointments searchApts={this.searchApts}/>
                 
               </div>
             </div>
